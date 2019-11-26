@@ -1,0 +1,65 @@
+// Routes for Courses
+const express = require('express');
+const router = express.Router();
+const { Course } = require('../models');
+
+
+// set up parsing
+router.use(express.json());
+router.use(express.urlencoded({ extended: false }));
+
+
+// Handler function to wrap each route. 
+function asyncHandler(cb) {
+    return async (req, res, next) => {
+      try {
+        await cb(req, res, next);
+      } catch (error) {
+        res.status(500).send(error);
+      }
+    };
+  }
+
+
+// GET /api/courses - 200 - Returns a list of courses (including the user that owns each course)
+router.get('/courses', asyncHandler(async (req, res) => {
+    const course = await Course.findAll();
+    res.json(course);
+    res.status(200).end();
+}));
+
+// GET /api/courses/:id 200 - Returns a the course (including the user that owns the course) for the provided course ID
+router.get('/courses/:id', asyncHandler(async (req, res) => {
+    const course = await Course.findByPk(req.params.id);
+    res.json(course);
+    res.status(200).end();
+}));
+
+// POST /api/courses 201 - Creates a course, sets the Location header to the URI for the course, and returns no content
+router.post('/courses', async (req, res) => {
+    try {
+        const course = await Course.create(req.body);
+        res.status(201).end();
+    } catch(error){
+        console.error(error);
+    }
+});
+
+// PUT /api/courses/:id 204 - Updates a course and returns no content
+router.put('/courses/:id', async (req, res) => {
+  try {
+    const course = await Course.findByPk(req.params.id); // Find that course
+    if (!course) res.status(404).send('The course with the given ID was not found'); // Make sure that course exsists 
+
+    course.body = req.body;
+    res.status(204).end();
+  } catch(error){
+    res.status(500).json({ message: error.message });
+  }
+});
+
+// DELETE /api/courses/:id 204 - Deletes a course and returns no content
+
+
+
+module.exports = router;

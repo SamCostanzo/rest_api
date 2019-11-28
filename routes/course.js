@@ -28,6 +28,11 @@ router.get('/courses', asyncHandler(async (req, res) => {
     res.status(200).end();
 }));
 
+// MIGHT need to add this above from Emmett
+// const course = await Course.findAll({
+//   include: [{ model: User, as: "user" }]
+// });
+
 // GET /api/courses/:id 200 - Returns a the course (including the user that owns the course) for the provided course ID
 router.get('/courses/:id', asyncHandler(async (req, res) => {
     const course = await Course.findByPk(req.params.id);
@@ -38,8 +43,8 @@ router.get('/courses/:id', asyncHandler(async (req, res) => {
 // POST /api/courses 201 - Creates a course, sets the Location header to the URI for the course, and returns no content
 router.post('/courses', async (req, res) => {
     try {
-        const course = await Course.create(req.body);
-        res.status(201).end();
+        const course = await Course.create(req.body); // Create a new course
+        res.status(201).end(); // Set status code and end the request
     } catch(error){
         console.error(error);
     }
@@ -50,16 +55,23 @@ router.put('/courses/:id', async (req, res) => {
   try {
     const course = await Course.findByPk(req.params.id); // Find that course
     if (!course) res.status(404).send('The course with the given ID was not found'); // Make sure that course exsists 
-
-    course.body = req.body;
-    res.status(204).end();
+    course.update(req.body); // Update the course with the new request body
+    res.status(204).end(); // If no errors, set the status to 204 and end request
   } catch(error){
     res.status(500).json({ message: error.message });
   }
 });
 
 // DELETE /api/courses/:id 204 - Deletes a course and returns no content
-
+router.delete('/courses/:id', async (req, res) => {
+  try {
+    const course = await Course.findByPk(req.params.id); // Find that course
+    await course.destroy(); // Delete that course
+    res.status(204).end(); // Set status code and end request
+  } catch(error){
+    res.status(500).json({ message: error.message });
+  }
+});
 
 
 module.exports = router;

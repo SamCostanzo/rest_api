@@ -23,7 +23,6 @@ app.use(express.json());
 app.use('/api', user);
 app.use('/api', course);
 
-// TODO setup your api routes here
 
 // setup a friendly greeting for the root route
 app.get('/', (req, res) => {
@@ -53,11 +52,6 @@ app.use((err, req, res, next) => {
 
 // set our port
 app.set('port', process.env.PORT || 5000);
-
-// start listening on our port
-// const server = app.listen(app.get('port'), () => {
-//   console.log(`Express server is listening on port ${server.address().port}`);
-// });
 
 
 // start listening on our port, and sync the models when the server starts.

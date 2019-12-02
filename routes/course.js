@@ -21,7 +21,7 @@ function asyncHandler(cb) {
   }
 
 
-// GET /api/courses - 200 - Returns a list of courses (including the user that owns each course)
+// GET /api/courses - 200 - Returns a list of courses (including the user that owns each course) - DONE
 router.get('/courses', asyncHandler(async (req, res) => {
     const course = await Course.findAll();
     res.json(course);
@@ -33,7 +33,7 @@ router.get('/courses', asyncHandler(async (req, res) => {
 //   include: [{ model: User, as: "user" }]
 // });
 
-// GET /api/courses/:id 200 - Returns a the course (including the user that owns the course) for the provided course ID
+// GET /api/courses/:id 200 - Returns a the course (including the user that owns the course) for the provided course ID - DONE
 router.get('/courses/:id', asyncHandler(async (req, res) => {
     const course = await Course.findByPk(req.params.id);
     res.json(course);
@@ -43,8 +43,8 @@ router.get('/courses/:id', asyncHandler(async (req, res) => {
 // POST /api/courses 201 - Creates a course, sets the Location header to the URI for the course, and returns no content
 router.post('/courses', async (req, res) => {
     try {
-        const course = await Course.create(req.body); // Create a new course
-        res.status(201).end(); // Set status code and end the request
+        const course = await Course.create(req.body); // Create a new course with the request's body
+        res.status(201).location('/courses/:id').end(); // Set status code and location and ends the response
     } catch(error){
         console.error(error);
     }
@@ -56,7 +56,7 @@ router.put('/courses/:id', async (req, res) => {
     const course = await Course.findByPk(req.params.id); // Find that course
     if (!course) res.status(404).send('The course with the given ID was not found'); // Make sure that course exsists 
     course.update(req.body); // Update the course with the new request body
-    res.status(204).end(); // If no errors, set the status to 204 and end request
+    res.status(204).end(); // If no errors, set the status to 204 and end response
   } catch(error){
     res.status(500).json({ message: error.message });
   }
@@ -67,7 +67,7 @@ router.delete('/courses/:id', async (req, res) => {
   try {
     const course = await Course.findByPk(req.params.id); // Find that course
     await course.destroy(); // Delete that course
-    res.status(204).end(); // Set status code and end request
+    res.status(204).end(); // Set status code and end response
   } catch(error){
     res.status(500).json({ message: error.message });
   }

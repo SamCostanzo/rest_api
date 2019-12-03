@@ -3,6 +3,7 @@ const express = require('express');
 const router = express.Router();
 const { User } = require('../models'); // Require the user model from the models folder
 const bcryptjs = require('bcryptjs'); // Package for password hashing
+const auth = require('basic-auth');
 
 // set up parsing
 router.use(express.json());
@@ -21,10 +22,71 @@ function asyncHandler(cb) {
   }
 
 
+  const authenticateUser = (req, res, next) => {
+    let message = null;
+  
+    // Parse the user's credentials from the Authorization header.
+    const credentials = auth(req);
+    console.log(credentials);
+    
+    // If the user's credentials are available...
+    if (credentials) {
+      // Attempt to retrieve the user from the database by their username (i.e. the user's "key" from the Authorization header).
+      // const user = users.find(u => u.username === credentials.name); // emailAddress or username??? 
+      const user = User.find(u => u.username === credentials.name);
+      
+      // If a user was successfully retrieved from the data store...
+      if (user) {
+        // Use the bcryptjs npm package to compare the user's password (from the Authorization header) to the user's password that was retrieved from the data store.
+        const authenticated = bcryptjs.compareSync(credentials.pass, user.password);
+  
+        // If the passwords match...
+        if (authenticated) {
+          console.log(`Authentication successful for username: ${user.username}`);
+  
+          // Then store the retrieved user object on the request object so any middleware functions that follow this middleware function will have access to the user's information.
+          req.currentUser = user;
+        } else {
+          message = `Authentication failure for username: ${user.username}`;
+        }
+      } else {
+        message = `User not found for username: ${credentials.name}`;
+      }
+    } else {
+      message = 'Auth header not found';
+    }
+  
+    // If user authentication failed...
+    if (message) {
+      console.warn(message);
+  
+      // Return a response with a 401 Unauthorized HTTP status code.
+      res.status(401).json({ message: 'Access Denied' });
+    } else {
+      // Or if user authentication succeeded...
+      // Call the next() method.
+      next();
+    }
+  };
+
+
+
+
+
+  
+
 // Returns the currently authenticated user - 200 - PH - For now it just returns all the users - NEEDS WORK
-router.get('/users', asyncHandler(async (req, res) => {
-    const user = await User.findAll();
-    res.json(user);
+router.get('/users', authenticateUser, asyncHandler(async (req, res) => {
+    // const user = await User.findAll();
+    // res.json(user);
+    
+    const user = req.currentUser;
+
+    res.json({
+      name: user.name,
+      username: user.username,
+    });
+    
     res.status(200).end();
 }));
 
@@ -43,47 +105,3 @@ router.post('/users', asyncHandler(async (req, res) => {
 
 
 
-
- // User authenticate starting code for now
-
-
- // Maybe put before routes
-//  const authenticateUser = asyncHandler(async (req, res, next) => {
-//   let message = null;
-
-//   const credentials = auth(req);
-
-//   if (credentials) {
-//     const user = await User.findOne({
-//       where: {
-//         emailAddress: credentials.name
-//       }
-//     });
-
-//     if (user) {
-//       const authenticated = bcryptjs.compareSync(
-//         credentials.pass,
-//         user.password
-//       );
-//       if (authenticated) {
-//         console.log(
-//           `Authentication successful for username: ${user.emailAddress}`
-//         );
-
-//         req.currentUser = user;
-//       } else {
-//         message = `Authentication failure for username: ${user.emailAddress}`;
-//       }
-//     } else {
-//       message = `User not found for username: ${credentials.name}`;
-//     }
-//   } else {
-//     message = "Auth Header not found";
-//   }
-//   if (message) {
-//     console.warn(message);
-//     res.status(401).json({ message: "Access Denied" });
-//   } else {
-//     next();
-//   }
-// });

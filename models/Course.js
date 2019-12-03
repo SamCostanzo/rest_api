@@ -11,23 +11,47 @@ module.exports = (sequelize) => {
     },
     userId: {
         type: Sequelize.STRING, // Id from the users table
-        // allowNull: false
+        allowNull: false,
+        validate: {
+            notNull: {
+                msg: 'Please provide a value for "user ID"',
+            },
+            notEmpty: {
+                msg: 'Please provide a value for "user ID"',
+            }
+        },
     },
     title: {
         type: Sequelize.STRING,
-        // allowNull: false
+        allowNull: false,
+        validate: {
+            notNull: {
+                msg: 'Please provide a value for "title"',
+            },
+            notEmpty: {
+                msg: 'Please provide a value for "title"',
+            }
+        },
     },
     description: {
         type: Sequelize.TEXT,
-        // allowNull: false
+        allowNull: false,
+        validate: {
+            notNull: {
+                msg: 'Please provide a value for "description"',
+            },
+            notEmpty: {
+                msg: 'Please provide a value for "description"',
+            }
+        },
     },
     estimatedTime: {
         type: Sequelize.STRING, // Nullable
-        // allowNull: true
+        allowNull: true
     },
     materialsNeeded: {
         type: Sequelize.STRING, // Nullable
-        // allowNull: true
+        allowNull: true
     },
     }, { sequelize });
 

@@ -40,7 +40,7 @@ function asyncHandler(cb) {
         }
       });
 
-      
+      console.log(user);
 
       // If a user was successfully retrieved from the data store...
       if (user) {
@@ -68,7 +68,7 @@ function asyncHandler(cb) {
       console.warn(message);
   
       // Return a response with a 401 Unauthorized HTTP status code.
-      res.status(401).json({ message: 'Access Denied' });
+      res.status(401).json({ message: message });
     } else {
       // Or if user authentication succeeded...
       // Call the next() method.
@@ -102,9 +102,9 @@ router.post('/users', asyncHandler(async (req, res) => {
   // if (user.password) {
   //   user.password = bcryptjs.hashSync(user.password, 10);
   // }
-  
+    req.body.password = bcryptjs.hashSync(req.body.password); // Hash the new users password
     const user = await User.create(req.body); // Create a new user with the requests body
-    user.password = bcryptjs.hashSync(user.password); // Hash the new users password
+    // console.log(user);
     res.status(201).location('/').end(); // Sets the status code, location, and then ends the response
 }));
 

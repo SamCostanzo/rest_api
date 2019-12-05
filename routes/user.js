@@ -23,6 +23,7 @@ function asyncHandler(cb) {
 
 
   const authenticateUser = asyncHandler(async (req, res, next) => {
+    // Devlare a message varible to be filled in below
     let message = null;
   
     // Parse the user's credentials from the Authorization header.
@@ -31,16 +32,13 @@ function asyncHandler(cb) {
     
     // If the user's credentials are available...
     if (credentials) {
-      // Attempt to retrieve the user from the database by their username (i.e. the user's "key" from the Authorization header).
       
+      // Attempt to retrieve the user from the database by their username (i.e. the user's "key" from the Authorization header).
       const user = await User.findOne({
         where: {
           emailAddress: credentials.name,
-          // password: credentials.password
         }
       });
-
-      console.log(user);
 
       // If a user was successfully retrieved from the data store...
       if (user) {
@@ -79,14 +77,9 @@ function asyncHandler(cb) {
 
 
 
-
-  
-
 // Returns the currently authenticated user - 200 - PH - For now it just returns all the users - NEEDS WORK
 router.get('/users', authenticateUser, asyncHandler(async (req, res) => {
-    
   const user = req.currentUser;
-
     res.status(200).json({
       emailAddress: user.emailAddress,
       firstName: user.firstName,
@@ -98,18 +91,13 @@ router.get('/users', authenticateUser, asyncHandler(async (req, res) => {
 
 // Creates a user, sets the location header to '/', and returns no content - 201 - DONE I THINK
 router.post('/users', asyncHandler(async (req, res) => {
-    
-  // if (user.password) {
-  //   user.password = bcryptjs.hashSync(user.password, 10);
-  // }
     req.body.password = bcryptjs.hashSync(req.body.password); // Hash the new users password
     const user = await User.create(req.body); // Create a new user with the requests body
-    // console.log(user);
     res.status(201).location('/').end(); // Sets the status code, location, and then ends the response
 }));
 
 
- module.exports = router;
+module.exports = router;
 
 
 

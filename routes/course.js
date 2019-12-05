@@ -24,14 +24,14 @@ function asyncHandler(cb) {
 // GET /api/courses - 200 - Returns a list of courses (including the user that owns each course) - DONE
 router.get('/courses', asyncHandler(async (req, res) => {
     const course = await Course.findAll();
+    // const course = await Course.findAll({
+    //   include: [{ model: User, as: "user" }]
+    // });
     res.json(course);
     res.status(200).end();
 }));
 
-// MIGHT need to add this above from Emmett
-// const course = await Course.findAll({
-//   include: [{ model: User, as: "user" }]
-// });
+
 
 // GET /api/courses/:id 200 - Returns a the course (including the user that owns the course) for the provided course ID - DONE
 router.get('/courses/:id', asyncHandler(async (req, res) => {

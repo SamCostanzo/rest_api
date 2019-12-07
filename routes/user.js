@@ -89,7 +89,7 @@ router.get('/users', authenticateUser, asyncHandler(async (req, res) => {
 
 
 
-router.post('/users', asyncHandler(async (req, res) => {
+router.post('/users', asyncHandler(async (req, res, next) => {
 
   if(Object.keys(req.body).length > 0){
     try{
@@ -98,7 +98,8 @@ router.post('/users', asyncHandler(async (req, res) => {
       res.status(201).location('/').end(); // Sets the status code, location, and then ends the response
     } catch(error) {
       if(error.name === 'SequelizeValidationError'){
-        res.status(400).next(error);
+        error.status = 400;
+        next(error);
       } else {
         throw error;
       }

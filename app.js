@@ -51,7 +51,7 @@ app.use((err, req, res, next) => {
 });
 
 // set our port
-app.set('port', process.env.PORT || 5000);
+app.set('port', process.env.PORT || 5000); 
 
 
 // start listening on our port, and sync the models when the server starts.

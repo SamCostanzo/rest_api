@@ -23,7 +23,7 @@ function asyncHandler(cb) {
 
 
   const authenticateUser = asyncHandler(async (req, res, next) => {
-    // Devlare a message varible to be filled in below
+    // Declare a message varible to be filled in below
     let message = null;
   
     // Parse the user's credentials from the Authorization header.
@@ -89,13 +89,33 @@ router.get('/users', authenticateUser, asyncHandler(async (req, res) => {
 
 
 
-// Creates a user, sets the location header to '/', and returns no content - 201 - DONE I THINK
 router.post('/users', asyncHandler(async (req, res) => {
-    req.body.password = bcryptjs.hashSync(req.body.password); // Hash the new users password
-    const user = await User.create(req.body); // Create a new user with the requests body
-    res.status(201).location('/').end(); // Sets the status code, location, and then ends the response
+
+  if(Object.keys(req.body).length > 0){
+    try{
+      req.body.password = bcryptjs.hashSync(req.body.password); // Hash the new users password
+      const user = await User.create(req.body); // Create a new user with the requests body
+      res.status(201).location('/').end(); // Sets the status code, location, and then ends the response
+    } catch(error) {
+      if(error.name === 'SequelizeValidationError'){
+        res.status(400).next(error);
+      } else {
+        throw error;
+      }
+    }
+  } else {
+    new Error().status(400);
+  }
 }));
 
+
+
+// // Creates a user, sets the location header to '/', and returns no content - 201 - DONE I THINK
+// router.post('/users', asyncHandler(async (req, res) => {
+//   req.body.password = bcryptjs.hashSync(req.body.password); // Hash the new users password
+//   const user = await User.create(req.body); // Create a new user with the requests body
+//   res.status(201).location('/').end(); // Sets the status code, location, and then ends the response
+// }));
 
 module.exports = router;
 

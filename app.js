@@ -38,6 +38,7 @@ app.use((req, res) => {
   });
 });
 
+
 // setup a global error handler
 app.use((err, req, res, next) => {
   if (enableGlobalErrorLogging) {
@@ -60,3 +61,7 @@ sequelize.sync().then(() => {
     console.log(`Express server is listening on port ${server.address().port}...`);
   });
 });
+
+// const server = app.listen(app.get("port"), () => {
+//   console.log(`Express server is listening on port ${server.address().port}`);
+// });

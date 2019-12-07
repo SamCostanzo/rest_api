@@ -21,7 +21,7 @@ function asyncHandler(cb) {
     };
   }
 
-
+  // Authenticate a user
   const authenticateUser = asyncHandler(async (req, res, next) => {
     // Declare a message varible to be filled in below
     let message = null;
@@ -77,7 +77,7 @@ function asyncHandler(cb) {
 
 
 
-// Returns the currently authenticated user - 200 - PH - For now it just returns all the users - NEEDS WORK
+// Returns the currently authenticated user - 200 - PH - For now it just returns all the users - DONE
 router.get('/users', authenticateUser, asyncHandler(async (req, res) => {
   const user = req.currentUser;
     res.status(200).json({
@@ -89,6 +89,7 @@ router.get('/users', authenticateUser, asyncHandler(async (req, res) => {
 
 
 
+// Creates a new user. First checks to see if there is any data to work with, then hashes PW in the try block.
 router.post('/users', asyncHandler(async (req, res, next) => {
 
   if(Object.keys(req.body).length > 0){
@@ -110,13 +111,6 @@ router.post('/users', asyncHandler(async (req, res, next) => {
 }));
 
 
-
-// // Creates a user, sets the location header to '/', and returns no content - 201 - DONE I THINK
-// router.post('/users', asyncHandler(async (req, res) => {
-//   req.body.password = bcryptjs.hashSync(req.body.password); // Hash the new users password
-//   const user = await User.create(req.body); // Create a new user with the requests body
-//   res.status(201).location('/').end(); // Sets the status code, location, and then ends the response
-// }));
 
 module.exports = router;
 

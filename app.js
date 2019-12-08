@@ -55,6 +55,17 @@ app.use((err, req, res, next) => {
 app.set('port', process.env.PORT || 5000); 
 
 
+// Test database connection
+(async () => { 
+  try {
+    await sequelize.authenticate();
+    console.log("Connection to the database successful!");
+  } catch (error) {
+    console.error("Error connecting to the database: ", error);
+  }
+})();
+
+
 // start listening on our port, and sync the models when the server starts.
 sequelize.sync().then(() => {
   const server = app.listen(app.get('port'), () => {

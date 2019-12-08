@@ -4,7 +4,7 @@ const router = express.Router();
 const { Course } = require('../models');
 const { User } = require('../models');
 const bcryptjs = require('bcryptjs'); // Package for password hashing
-const auth = require('basic-auth');
+const auth = require('basic-auth'); // Package for authentication
 
 // set up parsing
 router.use(express.json());
@@ -98,9 +98,23 @@ router.get('/courses/:id', asyncHandler(async (req, res) => {
 // POST, PUT, DELETE COURSES
 
 // POST /api/courses 201 - Creates a course, sets the Location header to the URI for the course, and returns no content
-router.post('/courses', authenticateUser, asyncHandler(async (req, res) => {
-  const course = await Course.create(req.body); // Create a new course with the request's body
-  res.status(201).location('/courses/' + course.id).end(); // Set status code and location and ends the response
+router.post('/courses', authenticateUser, asyncHandler(async (req, res, next) => {
+  
+  if(Object.keys(req.body).length > 0){ // Checks that there is any data at all to work with
+    try{
+      const course = await Course.create(req.body); // Create a new course with the request's body
+      res.status(201).location('/courses/' + course.id).end(); // Set status code and location and ends the response
+    } catch(error) {
+      if(error.name === 'SequelizeValidationError'){
+        error.status = 400;
+        next(error);
+      } else {
+        throw error;
+      }
+    }
+  } else {
+    new Error().status(400);
+  }
 }));
 
 

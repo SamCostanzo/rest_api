@@ -3,7 +3,7 @@ const express = require('express');
 const router = express.Router();
 const { User } = require('../models'); // Require the user model from the models folder
 const bcryptjs = require('bcryptjs'); // Package for password hashing
-const auth = require('basic-auth');
+const auth = require('basic-auth'); // Package for authentication 
 
 // set up parsing
 router.use(express.json());
@@ -17,6 +17,7 @@ function asyncHandler(cb) {
         await cb(req, res, next);
       } catch (error) {
         res.status(500).send(error);
+        console.log(error);
       }
     };
   }
@@ -92,7 +93,7 @@ router.get('/users', authenticateUser, asyncHandler(async (req, res) => {
 // Creates a new user. First checks to see if there is any data to work with, then hashes PW in the try block.
 router.post('/users', asyncHandler(async (req, res, next) => {
 
-  if(Object.keys(req.body).length > 0){
+  if(Object.keys(req.body).length > 0){ // Checks that there is any data at all to work with
     try{
       req.body.password = bcryptjs.hashSync(req.body.password); // Hash the new users password
       const user = await User.create(req.body); // Create a new user with the requests body

@@ -3,6 +3,8 @@ const express = require('express');
 const router = express.Router();
 const { Course } = require('../models');
 const { User } = require('../models');
+const bcryptjs = require('bcryptjs'); // Package for password hashing
+const auth = require('basic-auth');
 
 // set up parsing
 router.use(express.json());
@@ -16,6 +18,7 @@ function asyncHandler(cb) {
         await cb(req, res, next);
       } catch (error) {
         res.status(500).send(error);
+        console.log(error);
       }
     };
   }
@@ -95,7 +98,7 @@ router.get('/courses/:id', asyncHandler(async (req, res) => {
 // POST, PUT, DELETE COURSES
 
 // POST /api/courses 201 - Creates a course, sets the Location header to the URI for the course, and returns no content
-router.post('/courses', asyncHandler(async (req, res) => {
+router.post('/courses', authenticateUser, asyncHandler(async (req, res) => {
   const course = await Course.create(req.body); // Create a new course with the request's body
   res.status(201).location('/courses/' + course.id).end(); // Set status code and location and ends the response
 }));
@@ -104,7 +107,7 @@ router.post('/courses', asyncHandler(async (req, res) => {
 
 
 // PUT /api/courses/:id 204 - Updates a course and returns no content
-router.put('/courses/:id', asyncHandler(async (req, res) => {
+router.put('/courses/:id', authenticateUser, asyncHandler(async (req, res) => {
   try {
     const course = await Course.findByPk(req.params.id); // Find that course
     // if (!course) res.status(404).send('The course with the given ID was not found'); // Make sure that course exsists 
@@ -124,7 +127,7 @@ router.put('/courses/:id', asyncHandler(async (req, res) => {
 
 
 // DELETE /api/courses/:id 204 - Deletes a course and returns no content
-router.delete('/courses/:id', asyncHandler(async (req, res) => {
+router.delete('/courses/:id', authenticateUser, asyncHandler(async (req, res) => {
   const course = await Course.findByPk(req.params.id); // Find that course
   await course.destroy(); // Delete that course
   res.status(204).end(); // Set status code and end response

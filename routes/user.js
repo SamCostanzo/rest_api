@@ -78,7 +78,7 @@ function asyncHandler(cb) {
 
 
 
-// Returns the currently authenticated user - 200 - PH - For now it just returns all the users - DONE
+// Returns the currently authenticated user - 200 
 router.get('/users', authenticateUser, asyncHandler(async (req, res) => {
   const user = req.currentUser;
     res.status(200).json({
@@ -90,26 +90,21 @@ router.get('/users', authenticateUser, asyncHandler(async (req, res) => {
 
 
 
-// Creates a new user. First checks to see if there is any data to work with, then hashes PW in the try block.
-router.post('/users', asyncHandler(async (req, res, next) => {
-
-  if(Object.keys(req.body).length > 0){ // Checks that there is any data at all to work with
-    try{
-      req.body.password = bcryptjs.hashSync(req.body.password); // Hash the new users password
-      const user = await User.create(req.body); // Create a new user with the requests body
-      res.status(201).location('/').end(); // Sets the status code, location, and then ends the response
-    } catch(error) {
-      if(error.name === 'SequelizeValidationError'){
-        error.status = 400;
-        next(error);
-      } else {
-        throw error;
+// Creates a user. Checks for info and hashes PW
+router.post("/users", asyncHandler(async (req, res) => {
+  const user = req.body;
+    try {
+      if (user.password) {
+        user.password = bcryptjs.hashSync(user.password);
       }
+
+      await User.create(user);
+      res.status(201).location('/').end();
+    } catch (error) {
+      res.status(400).json({ message: "Please Enter your name, email and password", error });
     }
-  } else {
-    new Error().status(400);
-  }
-}));
+  })
+);
 
 
 
@@ -118,3 +113,27 @@ module.exports = router;
 
 
 
+// Old way of creating user - Keeping for now if needed
+
+// && req.body.firstName && req.body.lastName && req.body.emailAddress && req.body.password
+// Creates a new user. First checks to see if there is any data to work with, then hashes PW in the try block.
+// router.post('/users', asyncHandler(async (req, res, next) => {
+
+//   if(Object.keys(req.body).length > 0){ // Checks that there is any data at all to work with
+//     try{
+//       req.body.password = bcryptjs.hashSync(req.body.password); // Hash the new users password
+//       const user = await User.create(req.body); // Create a new user with the requests body
+//       res.status(201).location('/').end(); // Sets the status code, location, and then ends the response
+//     } catch(error) {
+//       if(error.name === 'SequelizeValidationError'){
+//         error.status = 400;
+//         next(error);
+//       } else {
+//         throw error;
+//       }
+//     }
+//   } else {
+//     new Error().status(400);
+//     console.log(error);
+//   }
+// }));

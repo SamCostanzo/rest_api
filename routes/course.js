@@ -120,7 +120,7 @@ router.post('/courses', authenticateUser, asyncHandler(async (req, res, next) =>
 
 
 
-// PUT /api/courses/:id 204 - Updates a course and returns no content
+// Updates a course and returns no content
 router.put('/courses/:id', authenticateUser, asyncHandler(async (req, res) => {
   try {
     const course = await Course.findByPk(req.params.id); // Find that course

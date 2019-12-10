@@ -17,8 +17,7 @@ function asyncHandler(cb) {
       try {
         await cb(req, res, next);
       } catch (error) {
-        res.status(500).send(error);
-        console.log(error);
+        next(error);
       }
     };
   }
@@ -71,7 +70,7 @@ function asyncHandler(cb) {
 
 
 
-  
+
 // Returns a list of courses
 router.get('/courses', asyncHandler(async (req, res) => {
     // const course = await Course.findAll();
@@ -95,28 +94,11 @@ router.get('/courses/:id', asyncHandler(async (req, res) => {
 
 
 
-
-
-// Creates a new course - 201
+// Create a course
 router.post('/courses', authenticateUser, asyncHandler(async (req, res, next) => {
-  
-  if(Object.keys(req.body).length > 0){ // Checks that there is any data at all to work with
-    try{
-      const course = await Course.create(req.body); // Create a new course with the request's body
-      res.status(201).location('/courses/' + course.id).end(); // Set status code and location and ends the response
-    } catch(error) {
-      if(error.name === 'SequelizeValidationError'){
-        error.status = 400;
-        next(error);
-      } else {
-        throw error;
-      }
-    }
-  } else {
-    new Error().status(400);
-  }
+  const course = await Course.create(req.body);
+  res.status(201).location('/courses/' + course.id).end();
 }));
-
 
 
 
@@ -124,7 +106,6 @@ router.post('/courses', authenticateUser, asyncHandler(async (req, res, next) =>
 router.put('/courses/:id', authenticateUser, asyncHandler(async (req, res) => {
   try {
     const course = await Course.findByPk(req.params.id); // Find that course
-    // if (!course) res.status(404).send('The course with the given ID was not found'); // Make sure that course exsists 
     if (req.body.title && req.body.description) {
       course.update(req.body); // Update the course with the new request body
       await res.status(204).end(); // If no errors, set the status to 204 and end response

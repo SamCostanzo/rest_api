@@ -39,19 +39,25 @@ app.use((req, res) => {
 });
 
 
-// setup a global error handler
+// Global error handler
 app.use((err, req, res, next) => {
   if (enableGlobalErrorLogging) {
     console.error(`Global error handler: ${JSON.stringify(err.stack)}`);
   }
 
+  if(err.name === 'SequelizeValidationError'){
+    err.status = 400;
+    err.message = err.errors.map(err => err.message);
+  }
+
   res.status(err.status || 500).json({
     message: err.message,
-    error: {},
   });
 });
 
-// set our port
+
+
+// Server port
 app.set('port', process.env.PORT || 5000); 
 
 
